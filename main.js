@@ -48,14 +48,16 @@ document.getElementById("add-form").appendChild(newButton);
 const addButton = document.createElement("button");
 addButton.textContent = "Add Book";
 
+const cancelButton = document.createElement("button");
+cancelButton.textContent = "Cancel";
 
+let isNewButtonClicked = false;
 
-newButton.onclick = function () {
-    // Get line breaks working for after each  input box
-    const formContainer = document.createElement("div");
-    formContainer.setAttribute("id", "form");
-    document.getElementById("add-form").appendChild(formContainer);
-    // display inputs
+const formContainer = document.createElement("div");
+formContainer.setAttribute("id", "form");
+    
+
+function createTitleInput(formContainer) {
     const titleInput = document.createElement("input");
     titleInput.type = "text";
     titleInput.id = "title";
@@ -65,8 +67,11 @@ newButton.onclick = function () {
     titleLabel.textContent = "Title";
 
     titleLabel.appendChild(titleInput);
-    formContainer.appendChild(titleLabel);
+    titleLabel.appendChild(document.createElement("br"));
+    formContainer.appendChild(titleLabel); 
+}
 
+function createAuthorInput(formContainer) {
     const authorInput = document.createElement("input");
     authorInput.type = "text";
     authorInput.id = "author";
@@ -76,8 +81,11 @@ newButton.onclick = function () {
     authorLabel.textContent = "Author";
 
     authorLabel.appendChild(authorInput);
+    authorLabel.appendChild(document.createElement("br"));
     formContainer.appendChild(authorLabel);
+}
 
+function createPagesInput(formContainer) {
     const pagesInput = document.createElement("input");
     pagesInput.type = "text";
     pagesInput.id = "pages";
@@ -87,37 +95,57 @@ newButton.onclick = function () {
     pagesLabel.textContent = "Pages";
 
     pagesLabel.appendChild(pagesInput);
+    pagesLabel.appendChild(document.createElement("br"));
     formContainer.appendChild(pagesLabel);
+}
 
+function createReadInput(formContainer) {
     const readInput = document.createElement("input");
-    pagesInput.type = "text";
-    pagesInput.id = "read";
+    readInput.type = "text";
+    readInput.id = "read";
 
     const readLabel = document.createElement("label");
     readLabel.htmlFor = "read";
     readLabel.textContent = "Pages read";
 
     readLabel.appendChild(readInput);
+    readLabel.appendChild(document.createElement("br"));
     formContainer.appendChild(readLabel);
+}
 
-    // display Add Book Button
+function createAddForm() {
+    if (isNewButtonClicked === false) {
+        document.getElementById("add-form").appendChild(formContainer);
+        // display inputs
+        createTitleInput(formContainer);
+        createAuthorInput(formContainer);
+        createPagesInput(formContainer)
+        createReadInput(formContainer)
     
-    formContainer.appendChild(addButton);
+        // display Add Book Button
+        formContainer.appendChild(addButton);
+        formContainer.appendChild(cancelButton);
+    
+        isNewButtonClicked = true;
+     } else {
+        document.getElementById("add-form").appendChild(formContainer);
+     }
 }
 
-
-addButton.onclick = function () {
-    addBookToLibrary()
-    document.getElementById("shelf").textContent = "";
-    document.getElementById("shelf").appendChild(putBookOnShelf());
-    clearInputs();
+function removeAddForm() {
+    document.getElementById("add-form").removeChild(formContainer);
 }
+
+newButton.addEventListener("click", createAddForm);
+cancelButton.addEventListener("click", removeAddForm, false);
+
 
 // Only display books
 // Button that says NEW BOOK
 // Click NEW BOOK
 // Inputs and Add Book appear
 // Tidy up New Book on click function
+// Do not allow New Book to keep adding new forms
 // Hook up addButton functions to new DOM elements
 
 
