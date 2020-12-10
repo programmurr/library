@@ -11,7 +11,6 @@ const secondBook = new Book("Hyperion", "Dan Simmons", 482, 482);
 
 let myLibrary = [firstBook, secondBook];
 
-// HTML for below removed, update to DOM
 function addBookToLibrary() {
     let title = document.getElementById("title").value;
     let author = document.getElementById("author").value;
@@ -26,7 +25,10 @@ function putBookOnShelf() {
 
     for (let i = 0; i < myLibrary.length; i++) {
         const item = document.createElement("li");
+        myLibrary[i].position = i + 1;
+        removeButton.setAttribute("id", `${i}`)
         item.appendChild(document.createTextNode(myLibrary[i].info));
+        item.appendChild(removeButton);
         list.appendChild(item);
     }
     return list;
@@ -39,11 +41,12 @@ function clearInputs() {
     }
 }
 
-document.getElementById("shelf").appendChild(putBookOnShelf());
 
 const newButton = document.createElement("button");
 newButton.textContent = "New Book";
 document.getElementById("add-form").appendChild(newButton);
+
+let isNewButtonClicked = false;
 
 const addButton = document.createElement("button");
 addButton.textContent = "Add Book";
@@ -51,11 +54,14 @@ addButton.textContent = "Add Book";
 const cancelButton = document.createElement("button");
 cancelButton.textContent = "Cancel";
 
-let isNewButtonClicked = false;
-
 const formContainer = document.createElement("div");
 formContainer.setAttribute("id", "form");
-    
+
+const removeButton = document.createElement("button");
+removeButton.textContent = "Remove";
+
+document.getElementById("shelf").appendChild(putBookOnShelf());
+
 
 function createTitleInput(formContainer) {
     const titleInput = document.createElement("input");
@@ -121,7 +127,6 @@ function createAddForm() {
         createAuthorInput(formContainer);
         createPagesInput(formContainer)
         createReadInput(formContainer)
-    
         // display Add Book Button
         formContainer.appendChild(addButton);
         formContainer.appendChild(cancelButton);
@@ -136,17 +141,23 @@ function removeAddForm() {
     document.getElementById("add-form").removeChild(formContainer);
 }
 
+function addBookFunctions() {
+    addBookToLibrary()
+    document.getElementById("shelf").innerHTML = "";
+    document.getElementById("shelf").appendChild(putBookOnShelf());
+    clearInputs();
+}
+
 newButton.addEventListener("click", createAddForm);
-cancelButton.addEventListener("click", removeAddForm, false);
+cancelButton.addEventListener("click", removeAddForm);
+addButton.addEventListener("click", addBookFunctions);
 
+// Get remove button to appear on each book
+// When remove button clicked:
+//   Check if myLibrary is [];
+//   If it is, do nothing
+//   If not, myLibrary.splice(indexOfBook, 1);
 
-// Only display books
-// Button that says NEW BOOK
-// Click NEW BOOK
-// Inputs and Add Book appear
-// Tidy up New Book on click function
-// Do not allow New Book to keep adding new forms
-// Hook up addButton functions to new DOM elements
 
 
 
