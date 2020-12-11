@@ -3,11 +3,11 @@ function Book(title, author, pages, read) {
     this.author = author;
     this.pages = pages;
     this.read = read;
-    this.info =  `${title} by ${author}, ${pages} pages, ${read} pages read`;
+    this.info =  `${title} by ${author}, ${pages} pages, ${read}`;
 }
 
-const firstBook = new Book("Starship Troopers", "Robert A. Heinlein", 263, 263);
-const secondBook = new Book("Hyperion", "Dan Simmons", 482, 482);
+const firstBook = new Book("Starship Troopers", "Robert A. Heinlein", 263, "finished");
+const secondBook = new Book("Hyperion", "Dan Simmons", 482, "not finished");
 
 let myLibrary = [firstBook, secondBook];
 
@@ -15,7 +15,14 @@ function addBookToLibrary() {
     let title = document.getElementById("title").value;
     let author = document.getElementById("author").value;
     let pages = document.getElementById("pages").value;
-    let read = document.getElementById("read").value;
+    let read = document.getElementById("read");
+
+    if (read.checked === true) {
+        read = "finished";
+    } else {
+        read = "not finished";
+    }
+    
     let newBook = new Book(title, author, pages, read);
     myLibrary.push(newBook);
 }
@@ -29,7 +36,6 @@ function putBookOnShelf() {
         removeButton.textContent = "Remove";
         
         myLibrary[i].position = i;
-        removeButton.setAttribute("id", `${i}`)
         item.setAttribute("id", `book-${i}`)
 
         item.appendChild(document.createTextNode(myLibrary[i].info));
@@ -49,8 +55,7 @@ function putBookOnShelf() {
 }
 
 function removeBookFromShelf(i) {
-    removedBook = document.getElementById(`book-${i}`);
-    removedBook.remove();
+    document.getElementById(`book-${i}`).remove();
 }
 
 function clearInputs() {
@@ -75,11 +80,6 @@ cancelButton.textContent = "Cancel";
 
 const formContainer = document.createElement("div");
 formContainer.setAttribute("id", "form");
-
-// const removeButton = document.createElement("button");
-// removeButton.textContent = "Remove";
-
-document.getElementById("shelf").appendChild(putBookOnShelf());
 
 
 function createTitleInput(formContainer) {
@@ -126,12 +126,12 @@ function createPagesInput(formContainer) {
 
 function createReadInput(formContainer) {
     const readInput = document.createElement("input");
-    readInput.type = "text";
+    readInput.type = "checkbox";
     readInput.id = "read";
 
     const readLabel = document.createElement("label");
     readLabel.htmlFor = "read";
-    readLabel.textContent = "Pages read";
+    readLabel.textContent = "Finished reading?";
 
     readLabel.appendChild(readInput);
     readLabel.appendChild(document.createElement("br"));
@@ -167,20 +167,14 @@ function addBookFunctions() {
     clearInputs();
 }
 
-function removeBook() {
-    console.log(this);
-}
+document.getElementById("shelf").appendChild(putBookOnShelf());
 
 newButton.addEventListener("click", createAddForm);
 cancelButton.addEventListener("click", removeAddForm);
 addButton.addEventListener("click", addBookFunctions);
 
 
-// Get remove button to appear on each book
-// When remove button clicked:
-//   Check if myLibrary is [];
-//   If it is, do nothing
-//   If not, ;
+
 
 
 
