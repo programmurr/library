@@ -25,13 +25,32 @@ function putBookOnShelf() {
 
     for (let i = 0; i < myLibrary.length; i++) {
         const item = document.createElement("li");
-        myLibrary[i].position = i + 1;
+        const removeButton = document.createElement("button");
+        removeButton.textContent = "Remove";
+        
+        myLibrary[i].position = i;
         removeButton.setAttribute("id", `${i}`)
+        item.setAttribute("id", `book-${i}`)
+
         item.appendChild(document.createTextNode(myLibrary[i].info));
         item.appendChild(removeButton);
         list.appendChild(item);
+
+        removeButton.addEventListener("click", function() {
+            if (myLibrary.length === 0) {
+                return
+            } else {
+                myLibrary.splice(i, 1);
+                removeBookFromShelf(i);
+            }
+        });
     }
     return list;
+}
+
+function removeBookFromShelf(i) {
+    removedBook = document.getElementById(`book-${i}`);
+    removedBook.remove();
 }
 
 function clearInputs() {
@@ -57,8 +76,8 @@ cancelButton.textContent = "Cancel";
 const formContainer = document.createElement("div");
 formContainer.setAttribute("id", "form");
 
-const removeButton = document.createElement("button");
-removeButton.textContent = "Remove";
+// const removeButton = document.createElement("button");
+// removeButton.textContent = "Remove";
 
 document.getElementById("shelf").appendChild(putBookOnShelf());
 
@@ -148,15 +167,20 @@ function addBookFunctions() {
     clearInputs();
 }
 
+function removeBook() {
+    console.log(this);
+}
+
 newButton.addEventListener("click", createAddForm);
 cancelButton.addEventListener("click", removeAddForm);
 addButton.addEventListener("click", addBookFunctions);
+
 
 // Get remove button to appear on each book
 // When remove button clicked:
 //   Check if myLibrary is [];
 //   If it is, do nothing
-//   If not, myLibrary.splice(indexOfBook, 1);
+//   If not, ;
 
 
 
