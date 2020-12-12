@@ -1,5 +1,3 @@
-// const { read } = require("fs");
-
 function Book(title, author, pages, read) {
     this.title = title;
     this.author = author;
@@ -8,10 +6,7 @@ function Book(title, author, pages, read) {
     this.info =  `${title} by ${author}, ${pages} pages`;
 }
 
-const firstBook = new Book("Starship Troopers", "Robert A. Heinlein", 263, "finished");
-const secondBook = new Book("Hyperion", "Dan Simmons", 482, "not finished");
-
-let myLibrary = [firstBook, secondBook];
+let myLibrary =  JSON.parse(localStorage.getItem("myLibrary") || "[]");
 
 function addBookToLibrary() {
     let title = document.getElementById("title").value;
@@ -45,9 +40,12 @@ function putBookOnShelf() {
         item.setAttribute("id", `book-${i}`)
         item.appendChild(document.createTextNode(myLibrary[i].info));
         item.appendChild(document.createTextNode(`, ${myLibrary[i].read}`));
+        item.appendChild(document.createElement("br"));
         item.appendChild(readStatus);
         item.appendChild(removeButton);
         list.appendChild(item);
+
+        updateLocalStorage();
 
         removeButton.addEventListener("click", function() {
             if (myLibrary.length === 0) {
@@ -55,6 +53,7 @@ function putBookOnShelf() {
             } else {
                 myLibrary.splice(i, 1);
                 removeBookFromShelf(i);
+                updateLocalStorage();
             }
         });
 
@@ -65,6 +64,7 @@ function putBookOnShelf() {
                 myLibrary[i].read = "finished";
             }
             updateBookShelf(i);
+            updateLocalStorage();
         })
     }
     return list;
@@ -203,7 +203,12 @@ function addBookFunctions() {
     document.getElementById("shelf").innerHTML = "";
     document.getElementById("shelf").appendChild(putBookOnShelf());
     clearInputs();
+    updateLocalStorage();
 }
+
+function updateLocalStorage() {
+    window["localStorage"].setItem('myLibrary', JSON.stringify(myLibrary));
+};
 
 document.getElementById("shelf").appendChild(putBookOnShelf());
 
@@ -211,10 +216,4 @@ newButton.addEventListener("click", createAddForm);
 cancelButton.addEventListener("click", removeAddForm);
 addButton.addEventListener("click", addBookFunctions);
 
-
-
-
-
-
-
-
+updateLocalStorage();
