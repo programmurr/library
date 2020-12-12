@@ -1,9 +1,11 @@
+// const { read } = require("fs");
+
 function Book(title, author, pages, read) {
     this.title = title;
     this.author = author;
     this.pages = pages;
     this.read = read;
-    this.info =  `${title} by ${author}, ${pages} pages, ${read}`;
+    this.info =  `${title} by ${author}, ${pages} pages`;
 }
 
 const firstBook = new Book("Starship Troopers", "Robert A. Heinlein", 263, "finished");
@@ -22,7 +24,7 @@ function addBookToLibrary() {
     } else {
         read = "not finished";
     }
-    
+
     let newBook = new Book(title, author, pages, read);
     myLibrary.push(newBook);
 }
@@ -32,13 +34,18 @@ function putBookOnShelf() {
 
     for (let i = 0; i < myLibrary.length; i++) {
         const item = document.createElement("li");
+
         const removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
-        
-        myLibrary[i].position = i;
-        item.setAttribute("id", `book-${i}`)
 
+        const readStatus = document.createElement("input");
+        readStatus.type = "button";
+        readStatus.value = "Finished/Not Finished";
+        
+        item.setAttribute("id", `book-${i}`)
         item.appendChild(document.createTextNode(myLibrary[i].info));
+        item.appendChild(document.createTextNode(`, ${myLibrary[i].read}`));
+        item.appendChild(readStatus);
         item.appendChild(removeButton);
         list.appendChild(item);
 
@@ -50,8 +57,24 @@ function putBookOnShelf() {
                 removeBookFromShelf(i);
             }
         });
+
+        readStatus.addEventListener("click", function() {
+            if (myLibrary[i].read === "finished") {
+                myLibrary[i].read = "not finished";
+            } else {
+                myLibrary[i].read = "finished";
+            }
+            updateBookShelf(i);
+        })
     }
     return list;
+}
+
+function updateBookShelf(i) {
+    item = document.getElementById(`book-${i}`);
+    item.childNodes[1] = `, ${myLibrary[i].read}`;
+    document.getElementById("shelf").innerHTML = "";
+    document.getElementById("shelf").appendChild(putBookOnShelf());
 }
 
 function removeBookFromShelf(i) {
@@ -59,9 +82,11 @@ function removeBookFromShelf(i) {
 }
 
 function clearInputs() {
-    inputs = Array.from(document.querySelectorAll("input"));
+    let inputs = Array.from(document.querySelectorAll("input"));
     for (let i = 0; i < inputs.length; i ++) {
-        inputs[i].value = "";
+        if (inputs[i].type === "text") {
+            inputs[i].textContent = "";
+        }
     }
 }
 
