@@ -85,7 +85,7 @@ function clearInputs() {
     let inputs = Array.from(document.querySelectorAll("input"));
     for (let i = 0; i < inputs.length; i ++) {
         if (inputs[i].type === "text") {
-            inputs[i].textContent = "";
+            inputs[i].value = "";
         }
     }
 }
@@ -185,7 +185,20 @@ function removeAddForm() {
     document.getElementById("add-form").removeChild(formContainer);
 }
 
+function inputsCheck() {
+    let inputs = Array.from(document.querySelectorAll("input"));
+    for (let i = 0; i < inputs.length; i ++) {
+        if (inputs[i].type === "text" && inputs[i].value === "") {
+            return false;
+        }
+    }
+}
+
 function addBookFunctions() {
+    if (inputsCheck() == false) {
+        alert("Please fill out all the values!");
+        return;
+    };
     addBookToLibrary()
     document.getElementById("shelf").innerHTML = "";
     document.getElementById("shelf").appendChild(putBookOnShelf());
