@@ -83,11 +83,15 @@ function removeBookFromShelf(i) {
 
 function clearInputs() {
     let inputs = Array.from(document.querySelectorAll("input"));
+
     for (let i = 0; i < inputs.length; i ++) {
         if (inputs[i].type === "text") {
             inputs[i].value = "";
         }
     }
+
+    const checkbox = document.getElementById("read");
+    checkbox.checked = false;
 }
 
 
