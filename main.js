@@ -92,6 +92,7 @@ function clearInputs() {
 
 
 const newButton = document.createElement("button");
+newButton.id = "new-book";
 newButton.textContent = "New Book";
 document.getElementById("add-form").appendChild(newButton);
 
@@ -111,42 +112,27 @@ function createTitleInput(formContainer) {
     const titleInput = document.createElement("input");
     titleInput.type = "text";
     titleInput.id = "title";
-
-    const titleLabel = document.createElement("label");
-    titleLabel.htmlFor = "title";
-    titleLabel.textContent = "Title";
-
-    titleLabel.appendChild(titleInput);
-    titleLabel.appendChild(document.createElement("br"));
-    formContainer.appendChild(titleLabel); 
+    titleInput.placeholder = "Title";
+    titleInput.appendChild(document.createElement("br"))
+    formContainer.appendChild(titleInput); 
 }
 
 function createAuthorInput(formContainer) {
     const authorInput = document.createElement("input");
     authorInput.type = "text";
     authorInput.id = "author";
-
-    const authorLabel = document.createElement("label");
-    authorLabel.htmlFor = "author";
-    authorLabel.textContent = "Author";
-
-    authorLabel.appendChild(authorInput);
-    authorLabel.appendChild(document.createElement("br"));
-    formContainer.appendChild(authorLabel);
+    authorInput.placeholder = "Author";
+    authorInput.appendChild(document.createElement("br"));
+    formContainer.appendChild(authorInput);
 }
 
 function createPagesInput(formContainer) {
     const pagesInput = document.createElement("input");
     pagesInput.type = "text";
     pagesInput.id = "pages";
-
-    const pagesLabel = document.createElement("label");
-    pagesLabel.htmlFor = "pages";
-    pagesLabel.textContent = "Pages";
-
-    pagesLabel.appendChild(pagesInput);
-    pagesLabel.appendChild(document.createElement("br"));
-    formContainer.appendChild(pagesLabel);
+    pagesInput.placeholder = "No. pages";
+    pagesInput.appendChild(document.createElement("br"));
+    formContainer.appendChild(pagesInput);
 }
 
 function createReadInput(formContainer) {
@@ -166,12 +152,12 @@ function createReadInput(formContainer) {
 function createAddForm() {
     if (isNewButtonClicked === false) {
         document.getElementById("add-form").appendChild(formContainer);
-        // display inputs
+
         createTitleInput(formContainer);
         createAuthorInput(formContainer);
         createPagesInput(formContainer)
-        createReadInput(formContainer)
-        // display Add Book Button
+        createReadInput(formContainer);
+        
         formContainer.appendChild(addButton);
         formContainer.appendChild(cancelButton);
     
