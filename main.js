@@ -74,6 +74,7 @@ function updateBookShelf(i) {
     item = document.getElementById(`book-${i}`);
     item.childNodes[1] = `, ${myLibrary[i].read}`;
     document.getElementById("shelf").innerHTML = "";
+    document.getElementById("shelf").appendChild(newButton);
     document.getElementById("shelf").appendChild(putBookOnShelf());
 }
 
@@ -85,7 +86,7 @@ function clearInputs() {
     let inputs = Array.from(document.querySelectorAll("input"));
 
     for (let i = 0; i < inputs.length; i ++) {
-        if (inputs[i].type === "text") {
+        if (inputs[i].type === "text" || inputs[i].type ==="number") {
             inputs[i].value = "";
         }
     }
@@ -98,7 +99,7 @@ function clearInputs() {
 const newButton = document.createElement("button");
 newButton.id = "new-book";
 newButton.textContent = "New Book";
-document.getElementById("add-form").appendChild(newButton);
+document.getElementById("shelf").appendChild(newButton);
 
 let isNewButtonClicked = false;
 
@@ -132,7 +133,7 @@ function createAuthorInput(formContainer) {
 
 function createPagesInput(formContainer) {
     const pagesInput = document.createElement("input");
-    pagesInput.type = "text";
+    pagesInput.type = "number";
     pagesInput.id = "pages";
     pagesInput.placeholder = "No. pages";
     pagesInput.appendChild(document.createElement("br"));
@@ -191,6 +192,7 @@ function addBookFunctions() {
     };
     addBookToLibrary()
     document.getElementById("shelf").innerHTML = "";
+    document.getElementById("shelf").appendChild(newButton);
     document.getElementById("shelf").appendChild(putBookOnShelf());
     clearInputs();
     updateLocalStorage();

@@ -30,6 +30,7 @@ h1 {
 	margin-left: auto;
 	margin-right: auto;
 	width: 60%;
+	text-align: center;
 }
 
 ul {
@@ -45,6 +46,11 @@ li {
 	margin-bottom: 0.5rem;
 	padding-top: 10px;
 	padding-bottom: 5px;
+}
+
+#new-book {
+	margin-top: 0;
+	margin-bottom: 5px;
 }
 
 #add-form {
@@ -71,6 +77,13 @@ button {
 }
 
 input[type=text] {
+	border: 2px solid #eeeeee;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
+
+input[type=number] {
 	border: 2px solid #eeeeee;
 	margin-top: 5px;
 	margin-bottom: 5px;
