@@ -1,4 +1,7 @@
-function Book(title, author, pages, read) {
+var db = firebase.firestore();
+
+function Book(id, title, author, pages, read) {
+    this.id = id;
     this.title = title;
     this.author = author;
     this.pages = pages;
@@ -6,7 +9,34 @@ function Book(title, author, pages, read) {
     this.info =  `${title} by ${author}, ${pages} pages`;
 }
 
-let myLibrary =  JSON.parse(localStorage.getItem("myLibrary") || "[]");
+var bookConverter = {
+    toFirestore: function(book) {
+        return {
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            pages: book.pages,
+            read: book.read,
+            info: book.info
+        };
+    },
+    fromFirestore: function(snapshot, options) {
+        const data = snapshot.data(options);
+        return new Book(data.id, data.title, data.author, data.pages, data.read, data.info);
+    }
+};
+
+const getBooks = async () => {
+    var books = [];
+    await db.collection('books')
+        .get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                books.push(doc.data());
+            })
+        })
+    return books;
+}
 
 function addBookToLibrary() {
     let title = document.getElementById("title").value;
@@ -20,59 +50,87 @@ function addBookToLibrary() {
         read = "not finished";
     }
 
-    let newBook = new Book(title, author, pages, read);
-    myLibrary.push(newBook);
+    let newBook = new Book(uuidv4(), title, author, pages, read);
+
+    db.collection('books')
+        .withConverter(bookConverter)
+        .add(newBook);
 }
 
 function putBookOnShelf() {
-    const list = document.createElement("ul");
+    const booksDB = getBooks()
+        .then((books) => {
+            const list = document.createElement("ul");
 
-    for (let i = 0; i < myLibrary.length; i++) {
-        const item = document.createElement("li");
-
-        const removeButton = document.createElement("button");
-        removeButton.textContent = "Remove";
-
-        const readStatus = document.createElement("input");
-        readStatus.type = "button";
-        readStatus.value = "Finished/Not Finished";
+            for (let i = 0; i < books.length; i++) {
+                const item = document.createElement("li");
         
-        item.setAttribute("id", `book-${i}`)
-        item.appendChild(document.createTextNode(myLibrary[i].info));
-        item.appendChild(document.createTextNode(`, ${myLibrary[i].read}`));
-        item.appendChild(document.createElement("br"));
-        item.appendChild(readStatus);
-        item.appendChild(removeButton);
-        list.appendChild(item);
-
-        updateLocalStorage();
-
-        removeButton.addEventListener("click", function() {
-            if (myLibrary.length === 0) {
-                return
-            } else {
-                myLibrary.splice(i, 1);
-                removeBookFromShelf(i);
-                updateLocalStorage();
+                const removeButton = document.createElement("button");
+                removeButton.textContent = "Remove";
+        
+                const readStatus = document.createElement("input");
+                readStatus.type = "button";
+                readStatus.value = "Finished/Not Finished";
+                
+                item.setAttribute("id", `book-${i}`)
+                item.appendChild(document.createTextNode(books[i].info));
+                item.appendChild(document.createTextNode(`, ${books[i].read}`));
+                item.appendChild(document.createElement("br"));
+                item.appendChild(readStatus);
+                item.appendChild(removeButton);
+                list.appendChild(item);
+        
+                removeButton.addEventListener("click", function() {
+                    if (books.length === 0) {
+                        return
+                    } else {
+                        books.splice(i, 1);
+                        db.collection('books')
+                            .doc(booksDB[i].id)
+                            .delete()
+                            .then(() => {
+                                console.log(`Book ${i} deleted`)
+                            }).catch((error) => {
+                                console.error("Error removing book: ", error);
+                            });
+                        removeBookFromShelf(i);
+                    }
+                });
+        
+                readStatus.addEventListener("click", function() {
+                    const bookRef = db.collection('books').doc(books[i].id);
+                    if (bookRef.read === "finished") {
+                        bookRef.update({
+                            read: "not finished"
+                        })
+                        .then(() => {
+                            console.log("The book updated to NOT FINISHED");
+                        })
+                        .catch((error) => {
+                            console.error("Error updating the book to NOT FINISHED: ", error);
+                        });
+                    } else {
+                        bookRef.update({
+                            read: "finished"
+                        })
+                        .then(() => {
+                            console.log("The book updated to FINISHED");
+                        })
+                        .catch((error) => {
+                            console.error("Error updating the book to FINISHED: ", error);
+                        });
+                    }
+                    updateBookShelf(i, books);
+                })
             }
-        });
-
-        readStatus.addEventListener("click", function() {
-            if (myLibrary[i].read === "finished") {
-                myLibrary[i].read = "not finished";
-            } else {
-                myLibrary[i].read = "finished";
-            }
-            updateBookShelf(i);
-            updateLocalStorage();
+            return list;
         })
-    }
-    return list;
+    return booksDB;
 }
 
-function updateBookShelf(i) {
+function updateBookShelf(i, books) {
     item = document.getElementById(`book-${i}`);
-    item.childNodes[1] = `, ${myLibrary[i].read}`;
+    item.childNodes[1] = `, ${books[i].read}`;
     document.getElementById("shelf").innerHTML = "";
     document.getElementById("shelf").appendChild(newButton);
     document.getElementById("shelf").appendChild(putBookOnShelf());
@@ -111,7 +169,6 @@ cancelButton.textContent = "Cancel";
 
 const formContainer = document.createElement("div");
 formContainer.setAttribute("id", "form");
-
 
 function createTitleInput(formContainer) {
     const titleInput = document.createElement("input");
@@ -193,19 +250,19 @@ function addBookFunctions() {
     addBookToLibrary()
     document.getElementById("shelf").innerHTML = "";
     document.getElementById("shelf").appendChild(newButton);
-    document.getElementById("shelf").appendChild(putBookOnShelf());
+    putBookOnShelf()
+        .then((list) => {
+            document.getElementById("shelf").appendChild(list);
+        })
     clearInputs();
-    updateLocalStorage();
 }
 
-function updateLocalStorage() {
-    window["localStorage"].setItem('myLibrary', JSON.stringify(myLibrary));
-};
+putBookOnShelf()
+    .then((list) => {
+        document.getElementById("shelf").appendChild(list);
+    })
 
-document.getElementById("shelf").appendChild(putBookOnShelf());
 
 newButton.addEventListener("click", createAddForm);
 cancelButton.addEventListener("click", removeAddForm);
 addButton.addEventListener("click", addBookFunctions);
-
-updateLocalStorage();
