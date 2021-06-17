@@ -120,7 +120,7 @@ function putBookOnShelf() {
                 list.appendChild(item);
         
                 removeButton.addEventListener("click", async function(){
-                    deleteBook(books[i].id, books);
+                    await deleteBook(books[i].id, books);
                     removeBookFromShelf(i);
                 });
         
