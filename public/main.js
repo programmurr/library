@@ -57,6 +57,50 @@ function addBookToLibrary() {
         .add(newBook);
 }
 
+// finish/fix
+async function deleteBook(book, books, i) {
+    if (books.length === 0) {
+        console.log("No books");
+        return
+    } else {
+        const booksQuery = await db.collection('books').where("id", "==", book.id);
+        booksQuery.get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    doc.ref.delete();
+                    removeBookFromShelf(i);
+                })
+            })
+    }
+}
+
+// finish
+function updateStatus() {
+    const bookRef = db.collection('books').doc(books[i].id);
+    if (bookRef.read === "finished") {
+        bookRef.update({
+            read: "not finished"
+        })
+        .then(() => {
+            console.log("The book updated to NOT FINISHED");
+        })
+        .catch((error) => {
+            console.error("Error updating the book to NOT FINISHED: ", error);
+        });
+    } else {
+        bookRef.update({
+            read: "finished"
+        })
+        .then(() => {
+            console.log("The book updated to FINISHED");
+        })
+        .catch((error) => {
+            console.error("Error updating the book to FINISHED: ", error);
+        });
+    }
+    updateBookShelf(i, books);
+}
+
 function putBookOnShelf() {
     const booksDB = getBooks()
         .then((books) => {
@@ -80,48 +124,9 @@ function putBookOnShelf() {
                 item.appendChild(removeButton);
                 list.appendChild(item);
         
-                removeButton.addEventListener("click", function() {
-                    if (books.length === 0) {
-                        return
-                    } else {
-                        books.splice(i, 1);
-                        db.collection('books')
-                            .doc(booksDB[i].id)
-                            .delete()
-                            .then(() => {
-                                console.log(`Book ${i} deleted`)
-                            }).catch((error) => {
-                                console.error("Error removing book: ", error);
-                            });
-                        removeBookFromShelf(i);
-                    }
-                });
+                removeButton.addEventListener("click", function(){deleteBook(books[i], books, i)});
         
-                readStatus.addEventListener("click", function() {
-                    const bookRef = db.collection('books').doc(books[i].id);
-                    if (bookRef.read === "finished") {
-                        bookRef.update({
-                            read: "not finished"
-                        })
-                        .then(() => {
-                            console.log("The book updated to NOT FINISHED");
-                        })
-                        .catch((error) => {
-                            console.error("Error updating the book to NOT FINISHED: ", error);
-                        });
-                    } else {
-                        bookRef.update({
-                            read: "finished"
-                        })
-                        .then(() => {
-                            console.log("The book updated to FINISHED");
-                        })
-                        .catch((error) => {
-                            console.error("Error updating the book to FINISHED: ", error);
-                        });
-                    }
-                    updateBookShelf(i, books);
-                })
+                readStatus.addEventListener("click", function(){updateStatus(books, i)})
             }
             return list;
         })
