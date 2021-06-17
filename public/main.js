@@ -76,7 +76,7 @@ async function deleteBook(bookID, books) {
 }
 
 async function updateBook(book, status) {
-    return db.collection('books')
+    return await db.collection('books')
     .where('id', '==', book.id)
     .limit(1)
     .get()
