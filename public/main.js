@@ -26,7 +26,7 @@ var bookConverter = {
     }
 };
 
-const getBooks = async () => {
+async function getBooks() {
     var books = [];
     await db.collection('books')
         .get()
@@ -57,48 +57,48 @@ function addBookToLibrary() {
         .add(newBook);
 }
 
-// finish/fix
-async function deleteBook(book, books, i) {
+async function deleteBook(bookID, books) {
     if (books.length === 0) {
         console.log("No books");
-        return
+        return;
     } else {
-        const booksQuery = await db.collection('books').where("id", "==", book.id);
+        const booksQuery = await db.collection('books').where("id", "==", bookID);
         booksQuery.get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     doc.ref.delete();
-                    removeBookFromShelf(i);
                 })
+            })
+            .catch((error) => {
+                console.error(`Error deleting book title ${bookID}`, error);
             })
     }
 }
 
-// finish
-function updateStatus() {
-    const bookRef = db.collection('books').doc(books[i].id);
-    if (bookRef.read === "finished") {
-        bookRef.update({
-            read: "not finished"
-        })
-        .then(() => {
-            console.log("The book updated to NOT FINISHED");
-        })
-        .catch((error) => {
-            console.error("Error updating the book to NOT FINISHED: ", error);
-        });
+async function updateStatus(book) {
+    if (book.read === "finished") {
+       return db.collection('books')
+            .where('id', '==', book.id)
+            .limit(1)
+            .get()
+            .then((query) => {
+                const dbBook = query.docs[0];
+                let tmp = dbBook.data();
+                tmp.read = "not finished";
+                dbBook.ref.update(tmp);
+            });
     } else {
-        bookRef.update({
-            read: "finished"
-        })
-        .then(() => {
-            console.log("The book updated to FINISHED");
-        })
-        .catch((error) => {
-            console.error("Error updating the book to FINISHED: ", error);
+        return db.collection('books')
+        .where('id', '==', book.id)
+        .limit(1)
+        .get()
+        .then((query) => {
+            const dbBook = query.docs[0];
+            let tmp = dbBook.data();
+            tmp.read = "finished";
+            dbBook.ref.update(tmp);
         });
     }
-    updateBookShelf(i, books);
 }
 
 function putBookOnShelf() {
@@ -124,9 +124,15 @@ function putBookOnShelf() {
                 item.appendChild(removeButton);
                 list.appendChild(item);
         
-                removeButton.addEventListener("click", function(){deleteBook(books[i], books, i)});
+                removeButton.addEventListener("click", async function(){
+                    deleteBook(books[i].id, books);
+                    removeBookFromShelf(i);
+                });
         
-                readStatus.addEventListener("click", function(){updateStatus(books, i)})
+                readStatus.addEventListener("click", async function(){
+                    await updateStatus(books[i], i);
+                    updateBookShelf(i, books);
+                })
             }
             return list;
         })
@@ -138,7 +144,10 @@ function updateBookShelf(i, books) {
     item.childNodes[1] = `, ${books[i].read}`;
     document.getElementById("shelf").innerHTML = "";
     document.getElementById("shelf").appendChild(newButton);
-    document.getElementById("shelf").appendChild(putBookOnShelf());
+    putBookOnShelf()
+        .then((list) => {
+            document.getElementById("shelf").appendChild(list);
+        })
 }
 
 function removeBookFromShelf(i) {
