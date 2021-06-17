@@ -28,8 +28,8 @@ var bookConverter = {
 
 async function getBooks() {
     var books = [];
-    await db.collection('books')
-        .get()
+    var booksRef = await db.collection('books').orderBy('title');
+    await booksRef.get()
         .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 books.push(doc.data());
@@ -75,29 +75,24 @@ async function deleteBook(bookID, books) {
     }
 }
 
+async function updateBook(book, status) {
+    return db.collection('books')
+    .where('id', '==', book.id)
+    .limit(1)
+    .get()
+    .then((query) => {
+        const dbBook = query.docs[0];
+        let tmp = dbBook.data();
+        tmp.read = status;
+        dbBook.ref.update(tmp);
+    });
+}
+
 async function updateStatus(book) {
     if (book.read === "finished") {
-       return db.collection('books')
-            .where('id', '==', book.id)
-            .limit(1)
-            .get()
-            .then((query) => {
-                const dbBook = query.docs[0];
-                let tmp = dbBook.data();
-                tmp.read = "not finished";
-                dbBook.ref.update(tmp);
-            });
+       return updateBook(book, "not finished");
     } else {
-        return db.collection('books')
-        .where('id', '==', book.id)
-        .limit(1)
-        .get()
-        .then((query) => {
-            const dbBook = query.docs[0];
-            let tmp = dbBook.data();
-            tmp.read = "finished";
-            dbBook.ref.update(tmp);
-        });
+        return updateBook(book, "finished");
     }
 }
 
